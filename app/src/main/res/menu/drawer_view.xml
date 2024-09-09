@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:title="Home">
+            <menu>
+                <item
+                    android:id="@+id/homepage"
+
+                    android:title="Trang chủ" />
+
+            </menu>
+        </item>
+        <item android:title="Sản phẩm">
+
+            <menu>
+                <item
+                    android:id="@+id/lt"
+
+                    android:title="Laptop" />
+                <item android:id="@+id/cart"
+
+                    android:title="Giỏ hàng"/>
+                <item android:id="@+id/order"
+
+                    android:title="Đơn hàng"/>
+                <item android:id="@+id/manage"
+
+                    android:title="Quản Lí"/>
+            </menu>
+        </item>
+
+        <item android:title="Người dùng">
+            <menu>
+                <item
+                    android:id="@+id/add_user"
+                    android:title="Thêm thành viên"
+                    android:visible="false" />
+                <item
+                    android:id="@+id/sub_pass"
+                    android:title="Đổi mật khẩu" />
+                <item
+                    android:id="@+id/logout"
+                    android:title="Đăng xuất" />
+            </menu>
+        </item>
+    </group>
+</menu>

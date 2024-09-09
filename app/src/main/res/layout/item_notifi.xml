@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/splash_background"
+    android:padding="10dp"
+    android:clipToPadding="false">
+
+    <!-- Album Art -->
+    <ImageView
+        android:id="@+id/imgAlbumArt"
+        android:layout_centerVertical="true"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="centerCrop" />
+
+    <!-- Song Title -->
+    <TextView
+        android:id="@+id/tvSongTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_toStartOf="@+id/lllll"
+        android:layout_toEndOf="@id/imgAlbumArt"
+        android:layout_toRightOf="@id/imgAlbumArt"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:text="Song Thjfhdjhfjhdjfhdjhfjdfjdjfhjdhfjdhhfdfhdfjdhfitle"
+        android:textColor="#000"
+        android:textSize="16sp" />
+
+    <!-- Artist Name -->
+    <TextView
+        android:id="@+id/tvArtist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvSongTitle"
+        android:layout_toEndOf="@id/imgAlbumArt"
+        android:layout_toRightOf="@id/imgAlbumArt"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:text="Artist Name"
+        android:textColor="#777"
+        android:textSize="14sp"
+        android:ellipsize="end"
+        android:maxLines="1" />
+
+    <!-- Control Buttons -->
+    <LinearLayout
+        android:id="@+id/lllll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal"
+        android:layout_centerVertical="true">
+
+        <ImageView
+            android:id="@+id/imgPrevious"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_previous" />
+
+        <ImageView
+            android:id="@+id/imgPlayPause_notifi"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_play_pause" />
+
+        <ImageView
+            android:id="@+id/imgNext"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_next" />
+
+    </LinearLayout>
+
+</RelativeLayout>
