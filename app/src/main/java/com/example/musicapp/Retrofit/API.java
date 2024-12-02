@@ -87,5 +87,5 @@ public interface API {
     @POST("search.php")
     @FormUrlEncoded
     Call<Music_Model> search
-    (@Field("tenbaihat") String tenbaihat);
+    (@Field("search") String tenbaihat);
 }

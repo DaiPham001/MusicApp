@@ -40,28 +40,34 @@
             android:layout_height="0dp"
             android:layout_weight="1">
 
-                <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/viewpager"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    tools:ignore="MissingConstraints"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toTopOf="@id/botom"/>
-
-
-            <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:id="@+id/botom"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:background="@color/teal_700"
-                app:itemIconTint="@color/custom_color1"
-                app:itemTextColor="@color/custom_color1"
-                app:layout_constraintBottom_toBottomOf="parent"
+            <FrameLayout
+                android:id="@+id/viewpager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:menu="@menu/menu_navitgation"/>
+                app:layout_constraintEnd_toEndOf="parent" />
+
+<!--                <androidx.viewpager.widget.ViewPager-->
+<!--                    android:id="@+id/viewpager"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    tools:ignore="MissingConstraints"-->
+<!--                    />-->
+<!--                    app:layout_constraintBottom_toTopOf="@id/botom"-->
+
+
+<!--            <com.google.android.material.bottomnavigation.BottomNavigationView-->
+<!--                android:id="@+id/botom"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:background="@color/teal_700"-->
+<!--                app:itemIconTint="@color/custom_color1"-->
+<!--                app:itemTextColor="@color/custom_color1"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:menu="@menu/menu_navitgation"/>-->
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 

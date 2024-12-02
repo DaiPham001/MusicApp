@@ -13,7 +13,24 @@ public class Music implements Serializable {
     private String linkbaihat;
     private int luotthich;
 
+    public Music( String tenbaihat, String linkbaihat, String casi, String hinhbaihat ) {
+        this.tenbaihat = tenbaihat;
+        this.linkbaihat = linkbaihat;
+        this.casi = casi;
+        this.hinhbaihat = hinhbaihat;
+    }
 
+    public Music(int idbaihat, int idalbum, int idtheloai, int idplaylist, String tenbaihat, String hinhbaihat, String casi, String linkbaihat, int luotthich) {
+        this.idbaihat = idbaihat;
+        this.idalbum = idalbum;
+        this.idtheloai = idtheloai;
+        this.idplaylist = idplaylist;
+        this.tenbaihat = tenbaihat;
+        this.hinhbaihat = hinhbaihat;
+        this.casi = casi;
+        this.linkbaihat = linkbaihat;
+        this.luotthich = luotthich;
+    }
 
     public Music(int idplaylist) {
         this.idplaylist = idplaylist;

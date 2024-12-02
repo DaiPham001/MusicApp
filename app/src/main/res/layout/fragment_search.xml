@@ -28,7 +28,7 @@
    <TextView
        android:id="@+id/tv_null_search"
        android:layout_centerVertical="true"
-       android:text="Null"
+       android:text="Không tìm thấy"
        android:textAlignment="center"
        android:textSize="20dp"
        android:visibility="gone"

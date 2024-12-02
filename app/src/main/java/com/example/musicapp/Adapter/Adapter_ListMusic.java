@@ -18,6 +18,7 @@ import com.example.musicapp.Model.Music;
 import com.example.musicapp.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Adapter_ListMusic extends RecyclerView.Adapter<Adapter_ListMusic.ViewHolder_ListMusic> {
     public interface OnClick{
@@ -25,7 +26,7 @@ public class Adapter_ListMusic extends RecyclerView.Adapter<Adapter_ListMusic.Vi
         void onClick_Item(Music music);
     }
     private Context context;
-    private ArrayList<Music> list;
+    private List<Music> list;
     private OnClick onClick;
     public Adapter_ListMusic(Context context, ArrayList<Music> list, OnClick onClick) {
         this.context = context;

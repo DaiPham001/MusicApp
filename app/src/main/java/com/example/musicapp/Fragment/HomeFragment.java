@@ -1,6 +1,14 @@
 package com.example.musicapp.Fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,6 +74,7 @@ public class HomeFragment extends Fragment implements Adapter_pager.Onclick, Ada
     private Album_ViewModel album_viewModel;
     private Music_ViewModel music_viewModel;
     private TextView tv_playlist_home,tv_ca_top,tv_album_home;
+    private RelativeLayout overlay_no_network;
     private Intent intent;
 
     @Override
@@ -87,6 +97,7 @@ public class HomeFragment extends Fragment implements Adapter_pager.Onclick, Ada
         tv_playlist_home = view.findViewById(R.id.tv_playlist_home);
         tv_ca_top = view.findViewById(R.id.tv_ca_top);
         tv_album_home = view.findViewById(R.id.tv_album_home);
+        overlay_no_network = view.findViewById(R.id.overlay_no_network);
         // Initialize the list
         listpager = new ArrayList<>();
         adapter_pager = new Adapter_pager(getContext(), listpager,this);
@@ -335,5 +346,50 @@ public class HomeFragment extends Fragment implements Adapter_pager.Onclick, Ada
 //                .commit();
 //    }
 
+    // Method to check network availability
+    private boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
+        if (connectivityManager == null) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Network network = connectivityManager.getActiveNetwork();
+            if (network == null) {
+                return false;
+            }
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+            return networkCapabilities != null && networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+        } else {
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            return networkInfo != null && networkInfo.isConnected();
+        }
+    }
 
+    private BroadcastReceiver musicPlayerReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())){
+                if (isNetworkAvailable(context)){
+                    Log.e("mang","có");
+                    overlay_no_network.setVisibility(View.GONE);
+                }else {
+                    Log.e("mang","ko có");
+                    overlay_no_network.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+    };
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        getActivity().registerReceiver(musicPlayerReceiver,intentFilter);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        getActivity().unregisterReceiver(musicPlayerReceiver);
+    }
 }

@@ -12,10 +12,18 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -24,9 +32,11 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.example.musicapp.Adapter.ViewPagerAdapter;
+import com.example.musicapp.Fragment.DowloadFragment;
 import com.example.musicapp.Fragment.HomeFragment;
 import com.example.musicapp.Model.FilesMP3;
 import com.example.musicapp.R;
+import com.example.musicapp.Sevice.MusicPlayerReceiver;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
@@ -37,10 +47,10 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private NavigationView naView;
     private Fragment fragment = null;
-    private BottomNavigationView bottom;
-    private ViewPager mViewPager;
+    //private BottomNavigationView bottom;
+    //private ViewPager mViewPager;
     private ViewPagerAdapter viewPagerAdapter;
-    private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 1;
+    //private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,32 +58,32 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         addcontroll();
         addevenst();
-        checkPemission();
+        //checkPemission();
     }
 
     private void addcontroll() {
         drawerLayout = findViewById(R.id.drawerlayout);
         toolbar = findViewById(R.id.toolbar);
         naView = findViewById(R.id.naview);
-        bottom = findViewById(R.id.botom);
-        mViewPager = findViewById(R.id.viewpager);
+       // bottom = findViewById(R.id.botom);
+       // mViewPager = findViewById(R.id.viewpager);
 
         //hiển thị toobar
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menutobar);
 
-        //khai báo viewadapter
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_SET_USER_VISIBLE_HINT);
-        mViewPager.setAdapter(viewPagerAdapter);
-        // load 2 tab
-        mViewPager.setOffscreenPageLimit(2);
+//        //khai báo viewadapter
+//        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_SET_USER_VISIBLE_HINT);
+//        mViewPager.setAdapter(viewPagerAdapter);
+//        // load 2 tab
+//        mViewPager.setOffscreenPageLimit(2);
     }
 
     private void addevenst() {
         Navigation();
-        addViewpager();
-        addbottom();
+        //addViewpager();
+        //addbottom();
     }
 
     private void Navigation() {
@@ -87,26 +97,14 @@ public class MainActivity extends AppCompatActivity {
         naView.setNavigationItemSelectedListener(item -> {
             switch (item.getItemId()) {
                 case R.id.homepage:
-                    mViewPager.setCurrentItem(0);
+                   // mViewPager.setCurrentItem(0);
+                    fragment = new HomeFragment();
                     getFragment();
                     break;
 
-                case R.id.lt:
-                    //fragment = new LaptopFragment();
+                case R.id.musicsave:
+                    fragment = new DowloadFragment();
 
-                    getFragment();
-                    break;
-                case R.id.cart:
-                    //fragment = new CartFragment();
-                    getFragment();
-                    break;
-                case R.id.order:
-                    //fragment = new ViewOrderFragment();
-                    getFragment();
-                    break;
-
-                case R.id.manage:
-                    //fragment = new ManageFragment();
                     getFragment();
                     break;
 
@@ -151,121 +149,168 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    private void addbottom() {
-        // tạo hoạt động cho bottom
-        bottom.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.tab1:
-                        mViewPager.setCurrentItem(0);//sử lý click botom
-                        // load lại dữ liệu khi click
-                        HomeFragment homeFragment = (HomeFragment) mViewPager.getAdapter().instantiateItem(mViewPager, 0);
-                        //HomeFragment.reloaddata();
-                        break;
-                    case R.id.tab2:
-                        mViewPager.setCurrentItem(1);//sử lý click botom
-                        break;
-                    case R.id.tab3:
-                        mViewPager.setCurrentItem(2);//sử lý click botom
-                        break;
-//                    case R.id.tab4:
-//                        mViewPager.setCurrentItem(3);//sử lý click botom
+//    private void addbottom() {
+//        // tạo hoạt động cho bottom
+//        bottom.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                switch (item.getItemId()) {
+//                    case R.id.tab1:
+//                        mViewPager.setCurrentItem(0);//sử lý click botom
+//                        // load lại dữ liệu khi click
+//                        HomeFragment homeFragment = (HomeFragment) mViewPager.getAdapter().instantiateItem(mViewPager, 0);
+//                        //HomeFragment.reloaddata();
 //                        break;
-                }
-                return true;
-            }
-        });
-    }
-
-    private void addViewpager() {
-        // tạo hoạt động cho viewpager
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            // sử lý vuốt màn hình
-            @Override
-            public void onPageSelected(int position) {
-                switch (position) {
-                    case 0:
-                        bottom.getMenu().findItem(R.id.tab1).setChecked(true);
-                        break;
-                    case 1:
-                        bottom.getMenu().findItem(R.id.tab2).setChecked(true);
-                        break;
-                    case 2:
-                        bottom.getMenu().findItem(R.id.tab3).setChecked(true);
-                        break;
-//                    case 3:
-//                        bottom.getMenu().findItem(R.id.tab4).setChecked(true);
+//                    case R.id.tab2:
+//                        mViewPager.setCurrentItem(1);//sử lý click botom
 //                        break;
-                }
-            }
+//                    case R.id.tab3:
+//                        mViewPager.setCurrentItem(2);//sử lý click botom
+//                        break;
+////                    case R.id.tab4:
+////                        mViewPager.setCurrentItem(3);//sử lý click botom
+////                        break;
+//                }
+//                return true;
+//            }
+//        });
+//    }
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
+//    private void addViewpager() {
+//        // tạo hoạt động cho viewpager
+//        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//
+//            }
+//
+//            // sử lý vuốt màn hình
+//            @Override
+//            public void onPageSelected(int position) {
+//                switch (position) {
+//                    case 0:
+//                        bottom.getMenu().findItem(R.id.tab1).setChecked(true);
+//                        break;
+//                    case 1:
+//                        bottom.getMenu().findItem(R.id.tab2).setChecked(true);
+//                        break;
+//                    case 2:
+//                        bottom.getMenu().findItem(R.id.tab3).setChecked(true);
+//                        break;
+////                    case 3:
+////                        bottom.getMenu().findItem(R.id.tab4).setChecked(true);
+////                        break;
+//                }
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//
+//            }
+//        });
+//    }
 
-            }
-        });
-    }
+//    public void checkPemission(){
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            // Permission is not granted
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+//                    REQUEST_CODE_READ_EXTERNAL_STORAGE);
+//        } else {
+//            // Permission is granted
+//            getAllAudio(this);
+//        }
+//    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           @NonNull String[] permissions,
+//                                           @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // Permission granted
+//                getAllAudio(this);
+//            } else {
+//                // Permission denied
+//                Toast.makeText(this, "Permission denied to read external storage", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
+//
+//    public ArrayList<FilesMP3> getAllAudio(Context context) {
+//        ArrayList<FilesMP3> tempAudiolist = new ArrayList<>();
+//        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+//        String[] projection = {
+//                MediaStore.Audio.Media.ALBUM,
+//                MediaStore.Audio.Media.TITLE,
+//                MediaStore.Audio.Media.DURATION,
+//                MediaStore.Audio.Media.DATA,
+//                MediaStore.Audio.Media.ARTIST,
+//        };
+//        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
+//        if (cursor != null) {
+//            while (cursor.moveToNext()) {
+//                String album = cursor.getString(0);
+//                String title = cursor.getString(1);
+//                String duration = cursor.getString(2);
+//                String path = cursor.getString(3);
+//                String artist = cursor.getString(4);
+//
+//                FilesMP3 musicFiles = new FilesMP3(path, title, artist, album, duration);
+//                //Log.e("path", "album" + album);
+//               // Log.e("title", "title" + title);
+//                tempAudiolist.add(musicFiles);
+//            }
+//            cursor.close();
+//        }
+//        return tempAudiolist;
+//    }
 
-    public void checkPemission(){
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    REQUEST_CODE_READ_EXTERNAL_STORAGE);
-        } else {
-            // Permission is granted
-            getAllAudio(this);
-        }
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
-                getAllAudio(this);
-            } else {
-                // Permission denied
-                Toast.makeText(this, "Permission denied to read external storage", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
+//    // Method to check network availability
+//    private boolean isNetworkAvailable(Context context) {
+//        ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
+//        if (connectivityManager == null) {
+//            return false;
+//        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            Network network = connectivityManager.getActiveNetwork();
+//            if (network == null) {
+//                return false;
+//            }
+//            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+//            return networkCapabilities != null && networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+//        } else {
+//            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+//            return networkInfo != null && networkInfo.isConnected();
+//        }
+//    }
+//
+//   private BroadcastReceiver musicPlayerReceiver = new BroadcastReceiver() {
+//       @Override
+//       public void onReceive(Context context, Intent intent) {
+//           if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())){
+//               if (isNetworkAvailable(context)){
+//                   Log.e("mang","có");
+//               }else {
+//                   Log.e("mang","ko có");
+//               }
+//           }
+//       }
+//   };
+//
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        IntentFilter  intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+//        registerReceiver(musicPlayerReceiver,intentFilter);
+//    }
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        unregisterReceiver(musicPlayerReceiver);
+//    }
 
-    public ArrayList<FilesMP3> getAllAudio(Context context) {
-        ArrayList<FilesMP3> tempAudiolist = new ArrayList<>();
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = {
-                MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.ARTIST,
-        };
-        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                String album = cursor.getString(0);
-                String title = cursor.getString(1);
-                String duration = cursor.getString(2);
-                String path = cursor.getString(3);
-                String artist = cursor.getString(4);
 
-                FilesMP3 musicFiles = new FilesMP3(path, title, artist, album, duration);
-                //Log.e("path", "album" + album);
-               // Log.e("title", "title" + title);
-                tempAudiolist.add(musicFiles);
-            }
-            cursor.close();
-        }
-        return tempAudiolist;
-    }
 }

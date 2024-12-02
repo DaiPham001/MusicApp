@@ -31,6 +31,14 @@ public class Adapter_ListMusicfm extends RecyclerView.Adapter<Adapter_ListMusicf
         this.onClick = onClick;
     }
 
+    // Thêm phương thức clear để xóa danh sách
+    public void clear() {
+        if (list != null) {
+            list.clear(); // Xóa tất cả dữ liệu trong danh sách
+            notifyDataSetChanged(); // Cập nhật giao diện RecyclerView
+        }
+    }
+
     @NonNull
     @Override
     public ViewHolder_ListMusicfm onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

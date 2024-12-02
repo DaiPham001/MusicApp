@@ -1,7 +1,6 @@
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/splash_background"
@@ -16,14 +15,14 @@
             android:id="@+id/viewpager2"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_alignParentTop="true"/>
+            android:layout_alignParentTop="true" />
 
         <me.relex.circleindicator.CircleIndicator
             android:id="@+id/circle"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:layout_alignBottom="@id/viewpager2"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true" />
 
         <TextView
             android:id="@+id/tv1"
@@ -31,11 +30,11 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/viewpager2"
             android:layout_marginTop="15dp"
-            android:textSize="25dp"
-            android:textColor="@color/white"
-            android:textStyle="bold"
             android:text="TOP CÁC CA KHÚC"
-            android:textAlignment="center" />
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="25dp"
+            android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcv_playlist"
@@ -48,30 +47,32 @@
 
         <TextView
             android:id="@+id/tv_playlist_home"
-            android:text="Xem thêm Playlist"
-            android:textColor="#BDC1C5"
-            android:textSize="20sp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_below="@+id/rcv_playlist"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <LinearLayout
-            android:id="@+id/ll"
-            android:padding="10dp"
-            android:layout_below="@+id/tv_playlist_home"
-            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_below="@+id/rcv_playlist"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:text="Xem thêm Playlist"
+            android:textColor="#BDC1C5"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:id="@+id/ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_playlist_home"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
             <TextView
-                android:text="Chủ Đề Và Thể Loại"
-                android:textSize="20dp"
-                android:textColor="@color/white"
-                android:textStyle="bold"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:text="Chủ Đề Và Thể Loại"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_ca_top"
@@ -82,75 +83,98 @@
                 android:textColor="#E08AE6"
                 android:textSize="18dp" />
         </LinearLayout>
-            <androidx.recyclerview.widget.RecyclerView
-                android:layout_below="@+id/ll"
-                android:id="@+id/rcv_catop"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rcv_catop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ll" />
 
         <LinearLayout
             android:id="@+id/lll"
-            android:padding="10dp"
-            android:layout_below="@+id/rcv_catop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_below="@+id/rcv_catop"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
             <TextView
-                android:text="Album Hot"
-                android:textSize="20dp"
-                android:textColor="@color/white"
-                android:textStyle="bold"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:text="Album Hot"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_album_home"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:text="xem thêm"
                 android:textColor="#E08AE6"
-                android:layout_gravity="center"
-                android:textSize="18dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:textSize="18dp" />
         </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcv_album"
-            android:layout_below="@+id/lll"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/lll" />
 
         <LinearLayout
             android:id="@+id/llll"
-            android:padding="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_below="@+id/rcv_album"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_below="@+id/rcv_album"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
             <TextView
-                android:text="Bài hát bạn yêu thích"
-                android:textSize="20dp"
-                android:textColor="@color/white"
-                android:textStyle="bold"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:text="Bài hát bạn yêu thích"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_popular_home"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:text="xem thêm"
                 android:textColor="#E08AE6"
-                android:layout_gravity="center"
-                android:textSize="18dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:textSize="18dp" />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcv_popular"
-            android:layout_below="@+id/llll"
-            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/llll"
+            android:layout_marginTop="10dp" />
+
+        <RelativeLayout
+            android:id="@+id/overlay_no_network"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#AA000000"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="No Internet Connection"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
     </RelativeLayout>
 </ScrollView>

@@ -1,8 +1,8 @@
 package com.example.musicapp.Sevice;
 
+import static com.example.musicapp.Sevice.Myapplocation.channel_id;
+
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -13,11 +13,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Binder;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -26,6 +26,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicapp.Activity.MusicPlayerActivity;
+import com.example.musicapp.Database.Music_Dao;
 import com.example.musicapp.Fragment.MusicPlayerFragment;
 import com.example.musicapp.Model.Music;
 import com.example.musicapp.R;
@@ -44,6 +45,7 @@ public class MusicPlayerService extends Service {
     public static final String ACTION_NEXT = "com.example.musicapp.ACTION_NEXT";
     public static final String ACTION_PREVIOUS = "com.example.musicapp.ACTION_PREVIOUS";
     public static final String ACTION_CLEAR = "com.example.musicapp.ACTION_CLEAR";
+    public static final String ACTION_STOP_AND_DELETE = "ACTION_STOP_SERVICE";
     // ID kênh thông báo và ID thông báo
     private static final String CHANNEL_ID = "MusicPlayerChannel";
     public static final int NOTIFICATION_ID = 1;
@@ -52,13 +54,17 @@ public class MusicPlayerService extends Service {
     private ArrayList<Music> musicList;
     private MediaPlayer mediaPlayer;
     private final IBinder binder = new LocalBinder();
-    //private MusicPlayerActivity musicPlayerActivity;
+    private Music_Dao musicDao;
     private MusicPlayerFragment musicPlayerFragment;
+
+
+    private static MusicPlayerService instance; // Biến static giữ tham chiếu tới service
 
     @Override
     public void onCreate() {
         super.onCreate();
         mediaPlayer = new MediaPlayer();
+        instance = this; // Khởi tạo instance khi service được tạo
 
         // Lắng nghe sự kiện khi bài hát phát xong
         mediaPlayer.setOnCompletionListener(mp -> {
@@ -68,33 +74,62 @@ public class MusicPlayerService extends Service {
     }
 
 
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             String action = intent.getAction();
 
-            // Get the music list or single music object
-            if (intent.hasExtra("selected_music")) {
-                Music selectedMusic = (Music) intent.getSerializableExtra("selected_music");
-                playMusic(selectedMusic); // Cập nhật bài hát hiện tại và phát nó
-            } else if (intent.hasExtra("music_list")) {
-                musicList = (ArrayList<Music>) intent.getSerializableExtra("music_list");
-                currentMusicIndex = 0;
-                currentMusic = musicList.get(currentMusicIndex);
-                playMusic(currentMusic);
-            } else if (intent.hasExtra("music")) {
-                currentMusic = (Music) intent.getSerializableExtra("music");
-                playMusic(currentMusic);
+            // Lấy dữ liệu từ SQLite nếu musicList và currentMusic bị null
+            if (musicList == null || currentMusic == null) {
+                musicDao = new Music_Dao(getApplicationContext());
+                musicList = musicDao.getSavedMusicList(); // Lấy danh sách nhạc đã lưu
+                currentMusic = musicList != null && !musicList.isEmpty() ? musicList.get(0) : null;
             }
 
-            // Handle the action if provided
+            // Phát nhạc được chọn hoặc khôi phục trạng thái từ dữ liệu đã lưu
+            // Kiểm tra và lấy dữ liệu từ intent
+            if (intent.hasExtra("selected_music")) {
+                currentMusic = (Music) intent.getSerializableExtra("selected_music");
+                if (currentMusic != null) {
+                    playMusic(currentMusic);
+                } else {
+                    Log.e("MusicPlayerService", "selected_music is null");
+                    stopSelf();
+                    return START_NOT_STICKY;
+                }
+            }else if (intent.hasExtra("musichome")) {
+                currentMusic = (Music) intent.getSerializableExtra("musichome");
+                if (currentMusic != null) {
+                    playMusic(currentMusic);
+                } else {
+                    Log.e("MusicPlayerService", "musichome is null");
+                    stopSelf();
+                    return START_NOT_STICKY;
+                }
+            } else if (intent.hasExtra("music_list")) {
+                musicList = (ArrayList<Music>) intent.getSerializableExtra("music_list");
+                if (musicList != null && !musicList.isEmpty()) {
+                    currentMusicIndex = 0;
+                    currentMusic = musicList.get(currentMusicIndex);
+                    playMusic(currentMusic);
+                } else {
+                    Log.e("MusicPlayerService", "music_list is null or empty");
+                    stopSelf();
+                    return START_NOT_STICKY;
+                }
+            } else if (currentMusic == null) {
+                Log.e("MusicPlayerService", "No music to play and currentMusic is null");
+                stopSelf();
+                return START_NOT_STICKY;
+            }
+
             if (action != null) {
                 handleAction(action);
             }
         }
-        return START_STICKY;  // Ensures the service restarts if killed
+        return START_STICKY;
     }
+
 
     //Xử lý các hành động play, pause, stop, next, previous
     private void handleAction(String action) {
@@ -130,30 +165,36 @@ public class MusicPlayerService extends Service {
 
     //Phát nhạc từ đối tượng Music
     public void playMusic(Music music) {
+        if (music == null) {
+            Log.e("MusicPlayerService", "Music is null, cannot play");
+            stopSelf(); // Dừng service nếu không có bài nhạc hợp lệ
+            return;
+        }
         try {
             mediaPlayer.reset();
-            String musicUrl = Utils.BASE + "mp3/" + music.getLinkbaihat();
+            String musicUrl = music.getLinkbaihat().contains("storage/emulated")
+                    ? music.getLinkbaihat()
+                    : Utils.BASE + "mp3/" + music.getLinkbaihat();
+
             mediaPlayer.setDataSource(musicUrl);
             mediaPlayer.prepare();
-            // Đặt OnCompletionListener ngay sau khi chuẩn bị và khởi động MediaPlayer
             mediaPlayer.setOnCompletionListener(mp -> {
-                if (musicList != null && currentMusicIndex < musicList.size() -1){
-                    currentMusicIndex++ ;
+                if (musicList != null && currentMusicIndex < musicList.size() - 1) {
+                    currentMusicIndex++;
                     playMusic(musicList.get(currentMusicIndex));
-                }else {
-                    /// Thông báo hoạt động bài hát đã kết thúc
-                    stopSelf(); // Tùy chọn: Dừng dịch vụ nếu cần
+                } else {
+                    stopSelf();
                 }
             });
-
             mediaPlayer.start();
 
-            // Gửi tổng thời gian bài hát đến Activity hoặc Fragment
             int duration = mediaPlayer.getDuration();
-            sendDurationToUI(duration); // Một phương thức để gửi thời gian đến giao diện người dùng
+            sendDurationToUI(duration);
             buildNotification(true);
         } catch (IOException e) {
             e.printStackTrace();
+            Log.e("MusicPlayerService", "Error playing music: " + e.getMessage());
+            stopSelf();
         }
     }
 
@@ -175,17 +216,27 @@ public class MusicPlayerService extends Service {
     }
 
     //Dừng phát nhạc và giải phóng tài nguyên
+//    public void stopMusic() {
+//        if (mediaPlayer != null) {
+//            mediaPlayer.stop();
+//            mediaPlayer.release();
+//            Log.d("MusicPlayerService", "Stopping foreground service");
+//            stopForeground(true); // Stop foreground service and remove notification
+//            stopSelf(); // Stop the service itself
+//            Log.d("MusicPlayerService", "Service stopped");
+//        }
+//    }
+
     public void stopMusic() {
-        if (mediaPlayer != null) {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
             mediaPlayer.release();
-            Log.d("MusicPlayerService", "Stopping foreground service");
-            stopForeground(true); // Stop foreground service and remove notification
-            stopSelf(); // Stop the service itself
-            Log.d("MusicPlayerService", "Service stopped");
+            mediaPlayer = null;
         }
-    }
 
+        // Dừng foreground và xóa notification
+        stopForeground(true);  // True để xóa notification
+    }
 
 
     //Xây dựng và hiển thị thông báo điều khiển phát nhạc
@@ -209,6 +260,16 @@ public class MusicPlayerService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
+        // Intent để dừng service và xóa danh sách nhạc từ DAO
+        Intent stopIntent = new Intent(this, MusicPlayerReceiver.class);
+        stopIntent.setAction(ACTION_STOP_AND_DELETE); // Hành động dừng và xóa
+        PendingIntent stopPendingIntent = PendingIntent.getBroadcast(
+                this,
+                1,  // Sử dụng requestCode khác
+                stopIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
         RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.item_notifi);
         remoteViews.setTextViewText(R.id.tvSongTitle, currentMusic.getTenbaihat());
         remoteViews.setTextViewText(R.id.tvArtist, currentMusic.getCasi());
@@ -223,8 +284,10 @@ public class MusicPlayerService extends Service {
 
             remoteViews.setImageViewResource(R.id.imgPlayPause_notifi, isPlaying ? R.drawable.ic_play : R.drawable.ic_play_pause);
 
-
             remoteViews.setOnClickPendingIntent(R.id.imgPlayPause_notifi, playPausePendingIntent);
+
+            // Sự kiện khi nhấn vào img_cancel
+            remoteViews.setOnClickPendingIntent(R.id.img_cancel, stopPendingIntent);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(MusicPlayerService.this, CHANNEL_ID)
                     .setContent(remoteViews)
@@ -236,7 +299,6 @@ public class MusicPlayerService extends Service {
             startForeground(NOTIFICATION_ID, builder.build());
         });
     }
-
 
 
     // Binder để Activity có thể tương tác với Service
@@ -280,15 +342,21 @@ public class MusicPlayerService extends Service {
                 });
     }
 
+    // hàm lưu list music vào DAO khi kill app
+    public void saveMusic(ArrayList<Music> arrayList) {
+        Music_Dao music_dao = new Music_Dao(getApplicationContext());
+        boolean check = music_dao.saveMusicList(arrayList);
+        if (check) {
+            Log.e("check", String.valueOf(check));
+        } else {
+            Log.e("check", String.valueOf(check));
+        }
+    }
+
     // hàm lấy phương thức bên activity cập nhật hoạt động
     // cho notification
     public void setMusicPlayerFragment(MusicPlayerFragment musicPlayerFragment) {
         this.musicPlayerFragment = musicPlayerFragment;
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return binder;  // Trả về binder thay vì null
     }
 
 
@@ -318,6 +386,7 @@ public class MusicPlayerService extends Service {
             mediaPlayer.seekTo(position);
         }
     }
+
     // Phương thức để gửi tổng thời gian bài hát đến MusicPlayerFragment
     private void sendDurationToUI(int duration) {
         if (musicPlayerFragment != null) {
@@ -331,12 +400,33 @@ public class MusicPlayerService extends Service {
     }
 
     @Override
+    public IBinder onBind(Intent intent) {
+        return binder;  // Trả về binder thay vì null
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         if (mediaPlayer != null) {
             mediaPlayer.release();
             mediaPlayer = null;
         }
+        instance = null; // Xóa tham chiếu instance khi service bị hủy
+        // Xóa danh sách nhạc từ DAO
+        musicDao.deleteAllMusicList();
+
+        // Lấy danh sách nhạc sau khi xóa để kiểm tra
+        //ArrayList<Music> deletedMusicList = musicDao.getSavedMusicList();
+//        if (deletedMusicList == null || deletedMusicList.isEmpty()) {
+//            Log.e("onDestroy", "Music list has been successfully deleted.");
+//        } else {
+//            Log.e("onDestroy", "Music list was not deleted.");
+//        }
+    }
+
+    // Phương thức static để lấy instance của service
+    public static MusicPlayerService getInstance() {
+        return instance;
     }
 
 }

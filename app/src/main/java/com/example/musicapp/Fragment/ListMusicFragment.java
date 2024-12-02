@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.example.musicapp.Adapter.Adapter_ListMusicfm;
+import com.example.musicapp.Database.Music_Dao;
 import com.example.musicapp.Model.Music;
 import com.example.musicapp.R;
 import com.example.musicapp.Sevice.MusicPlayerService;
@@ -32,6 +33,7 @@ public class ListMusicFragment extends Fragment implements Adapter_ListMusicfm.O
     private ArrayList<Music> list = new ArrayList<>();
     private Music music;
     private Adapter_ListMusicfm adapter_listMusicfm;
+    private Music_Dao music_dao;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,6 +49,8 @@ public class ListMusicFragment extends Fragment implements Adapter_ListMusicfm.O
         rcv_listmusic_fm = v.findViewById(R.id.rcv_listmusic_fm);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
         rcv_listmusic_fm.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
+        //
+        music_dao = new Music_Dao(getContext());
     }
 
     //Nhận dữ liệu từ Intent
@@ -73,6 +77,13 @@ public class ListMusicFragment extends Fragment implements Adapter_ListMusicfm.O
                 list.add(music);
             } else {
                 Log.e("MusicPlayerActivity", "musichome is null");
+            }
+        }else if (list == null || music == null){
+            list = music_dao.getSavedMusicList();
+            if (list != null){
+                Log.e("list1","true");
+            }else {
+                Log.e("list1","false");
             }
         }
     }
